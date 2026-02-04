@@ -2,6 +2,7 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -9,6 +10,15 @@ func (c *Client) GetMapData(reqUrl *string) (RespShallowLocations, error) {
 	url := baseURL + "/location-area"
 	if reqUrl != nil {
 		url = *reqUrl
+	}
+
+	if cached, ok := c.cache.Get(url); ok {
+		data := RespShallowLocations{}
+		err := json.Unmarshal(cached, &data)
+		if err != nil {
+			return RespShallowLocations{}, err
+		}
+		return data, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -22,9 +32,12 @@ func (c *Client) GetMapData(reqUrl *string) (RespShallowLocations, error) {
 	}
 	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+
+	c.cache.Add(url, body)
+
 	data := RespShallowLocations{}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&data)
+	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return RespShallowLocations{}, err
 	}
