@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Client) GetMapData(reqUrl *string) (RespShallowLocations, error) {
-	url := baseURL + "/location-area"
+	url := baseURL + "/location-area?offset=0&limit=20"
 	if reqUrl != nil {
 		url = *reqUrl
 	}
@@ -33,6 +33,9 @@ func (c *Client) GetMapData(reqUrl *string) (RespShallowLocations, error) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return RespShallowLocations{}, err
+	}
 
 	c.cache.Add(url, body)
 
