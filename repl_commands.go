@@ -95,8 +95,6 @@ func commandCatch(cfg *config, param *string) error {
 	random := rand.New(source)
 	catchRoll := random.Intn(catchChance)
 
-	fmt.Printf("%v %v", baseExp, catchRoll)
-
 	if catchRoll >= baseExp {
 		fmt.Printf("%s was caught!\n", *param)
 	} else {
