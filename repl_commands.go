@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"time"
 )
 
 func commandExit(cfg *config, param *string) error {
@@ -81,18 +82,25 @@ func commandCatch(cfg *config, param *string) error {
 	if *param == "" {
 		fmt.Println("No Pokemon name provided. Please type one after 'catch'!")
 	}
-	fmt.Printf("Throwing a Pokeball at %s...", *param)
+	fmt.Printf("Throwing a Pokeball at %s...\n", *param)
 
-	catchDifficulty := cfg.pokeapiClient.GetPokemonData(param)
+	pokemonData, err := cfg.pokeapiClient.GetPokemonData(param)
+	if err != nil {
+		return err
+	}
+	baseExp := pokemonData.BaseExperience
+	catchChance := baseExp*110/100 + 75
 
-	source := rand.NewSource(100)
+	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
-	catchRoll := random.Int()
+	catchRoll := random.Intn(catchChance)
 
-	if catchRoll >= catchDifficulty {
-		fmt.Printf("%s was caught!", param)
+	fmt.Printf("%v %v", baseExp, catchRoll)
+
+	if catchRoll >= baseExp {
+		fmt.Printf("%s was caught!\n", *param)
 	} else {
-		fmt.Printf("%s escaped!", param)
+		fmt.Printf("%s escaped!\n", *param)
 	}
 
 	return nil
