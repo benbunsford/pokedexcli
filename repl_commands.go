@@ -123,3 +123,13 @@ func commandInspect (cfg *config, param *string) error {
 	}
 	return nil
 }
+
+func commandPokedex (cfg *config, param *string) error {
+	fmt.Println("Your Pokedex:")
+
+	for key, _ := range cfg.caughtPokemon {
+		fmt.Printf(" - %v\n", key)
+	}
+
+	return nil
+}
